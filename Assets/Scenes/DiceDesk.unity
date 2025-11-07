@@ -577,6 +577,7 @@ GameObject:
   - component: {fileID: 180368117}
   - component: {fileID: 180368116}
   - component: {fileID: 180368119}
+  - component: {fileID: 180368120}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -702,6 +703,22 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!114 &180368120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 180368115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56666c5a40171f54783dd416a44f42bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EventMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_MaxRayIntersections: 0
 --- !u!1 &385128240
 GameObject:
   m_ObjectHideFlags: 0
@@ -1971,6 +1988,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73208b80c908ddb4ca5085e8943d4860, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentState: 0
   diceViewList: []
   spawnPoint: {fileID: 1396973580}
   diceCount: 6

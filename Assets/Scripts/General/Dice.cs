@@ -8,10 +8,22 @@ public enum DiceType
     Wild
 }
 
+public enum DiceRarity
+{
+    Common,
+    Rare,
+    Epic,
+    Legendary
+}
+
 [System.Serializable]
 public abstract class Dice
 {
     public DiceType diceType;
+    public DiceRarity diceRarity;
+    public int value;
+    public int valueMutiplier = 1;
+    public int valueBonus = 0;
 
     public virtual void Roll()
     {
@@ -22,55 +34,66 @@ public abstract class Dice
 [System.Serializable]
 public class CommonDice : Dice
 {
-    public int value;
+    public int num;
     public CommonDice()
     {
-        // value 取随机 1 到 6 之间的一个值
-        value = Random.Range(1, 7);
+        // num 取随机 1 到 6 之间的一个值
+        num = Random.Range(1, 7);
+        value = (num + valueBonus) * valueMutiplier;
         diceType = DiceType.Common;
+        diceRarity = DiceRarity.Common;
     }
 
     public override void Roll()
     {
-        value = Random.Range(1, 7);
+        num = Random.Range(1, 7);
+        value = (num + valueBonus) * valueMutiplier;
     }
 }
 
 [System.Serializable]
 public class OddDice : Dice
 {
-    public int value;
+    public int num;
     public OddDice()
     {
         // 从 {1,3,5} 中随机选一个
         int idx = Random.Range(0, 3); // 0,1,2
-        value = 1 + idx * 2;
+        num = 1 + idx * 2;
+        value = (num + valueBonus) * valueMutiplier;
+        //设置骰子的类型和稀有度
         diceType = DiceType.Odd;
+        diceRarity = DiceRarity.Common;
     }
 
     public override void Roll()
     {
         int idx = Random.Range(0, 3); // 0,1,2
-        value = 1 + idx * 2;
+        num = 1 + idx * 2;
+        value = (num + valueBonus) * valueMutiplier;
     }
 }
 
 [System.Serializable]
 public class EvenDice : Dice
 {
-    public int value;
+    public int num;
     public EvenDice()
     {
         // 从 {2,4,6} 中随机选一个
         int idx = Random.Range(0, 3); // 0,1,2
-        value = 2 + idx * 2;
+        num = 2 + idx * 2;
+        value = (num + valueBonus) * valueMutiplier;
+        //设置骰子的类型和稀有度
         diceType = DiceType.Even;
+        diceRarity = DiceRarity.Rare;
     }
 
     public override void Roll()
     {
         int idx = Random.Range(0, 3); // 0,1,2
-        value = 2 + idx * 2;
+        num = 2 + idx * 2;
+        value = (num + valueBonus) * valueMutiplier;
     }
 }
 
@@ -79,6 +102,9 @@ public class WildDice : Dice
 {
     public WildDice()
     {
+        value = (10 + valueBonus) * valueMutiplier;
+        //设置骰子的类型和稀有度
         diceType = DiceType.Wild;
+        diceRarity = DiceRarity.Legendary;
     }
 }
