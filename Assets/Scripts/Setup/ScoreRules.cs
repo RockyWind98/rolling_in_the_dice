@@ -77,14 +77,16 @@ public class ScoreRules : Singleton<ScoreRules>
     public ScoreRule currentRule;
     public string currentRuleName = "";
     public event System.Action<int> OnBaseCount;
-    public event System.Action<int> OnTotalCount;
     public event System.Action<ScoreRule> OnRuleCount;
+    public event System.Action<int> OnScoreClear;
+
+    private int _remainBase = 0;
     // Start is called before the first frame update
     void Start()
     {
         LoadRules();
         DeskManager.Instance.OnDiceSelect += ScoreUpdate;
-        BtnManger.Instance.OnScoreBtnClicked += ScoreClear;
+        DeskManager.Instance.OnDeskClear += ScoreClear;
     }
 
     // Update is called once per frame
@@ -113,16 +115,39 @@ public class ScoreRules : Singleton<ScoreRules>
         }
     }
 
-    private void ScoreClear()
+    private void UpdateRemainBase(Dictionary<string, int> diceNumRemain)
     {
-        currentScore = 0;
+        int diceNumRemainValue = 0;
+        foreach (var kvp in diceNumRemain)
+        {
+            if (kvp.Value > 0)
+            {
+                diceNumRemainValue += int.Parse(kvp.Key) * kvp.Value;
+            }
+        }
+
+        if(diceNumRemainValue > 0) 
+        {
+            _remainBase += diceNumRemainValue;
+        }
+        else
+        {
+            _remainBase = 0;
+        }
+    }
+
+    private void ScoreClear(Dictionary<string, int> diceNumRemain)
+    {
+        UpdateRemainBase(diceNumRemain);
+        currentScore = _remainBase;
         currentRule = null;
+        OnScoreClear?.Invoke(currentScore);
     }
 
     private void ScoreUpdate(Dictionary<string, int> diceSelected)
     {
         //Debug.Log("ScoreUpdate called");
-        currentScore = 0;
+        currentScore = _remainBase;
         //ScoreRule rule = null;
         for (int i = 0; i < rulesList.Count; i++)
         {
@@ -178,16 +203,15 @@ public class ScoreRules : Singleton<ScoreRules>
                     }
                 }
                 currentRule = rule;
+                Debug.Log($"public base -- currentScore: {currentScore}");
                 OnBaseCount?.Invoke(currentScore);
-                OnTotalCount?.Invoke(currentScore * rule.multiplier);
                 OnRuleCount?.Invoke(currentRule);
                 Debug.Log($"Current Score: {currentScore} using rule: {currentRule.ruleName}");
                 return;
             }
             else
             {
-                OnBaseCount?.Invoke(0);
-                OnTotalCount?.Invoke(0);
+                OnBaseCount?.Invoke(currentScore);
                 OnRuleCount?.Invoke(new ScoreRule());
             }
         }

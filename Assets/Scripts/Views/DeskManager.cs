@@ -28,6 +28,7 @@ public class DeskManager : Singleton<DeskManager>
 
     public DeskState currentState = DeskState.Idle;
     public event System.Action<Dictionary<string, int>> OnDiceSelect;
+    public event System.Action<Dictionary<string, int>> OnDeskClear;
 
     [SerializeField] private Transform spawnPoint;
     [SerializeField] private Transform destroyPoint;
@@ -53,7 +54,8 @@ public class DeskManager : Singleton<DeskManager>
 
     private List<Vector2> Slots2D = new List<Vector2>();
     private List<DiceSlot> diceSlots = new List<DiceSlot>();
-    private Dictionary<string, int> diceNumSelected;
+    private Dictionary<string, int> _diceNumSelected;
+    private Dictionary<string, int> _diceNumRemain;
     private int occupiedSlotCount = 0;
 
     void Start()
@@ -65,7 +67,7 @@ public class DeskManager : Singleton<DeskManager>
             diceSlots.Add(new DiceSlot(ScreenPointToWorldAtSpawnDepth(Slots2D[i])));
         }
 
-        diceNumSelected = new Dictionary<string, int>()
+        _diceNumSelected = new Dictionary<string, int>()
         {
             {"0", 0 },
             {"1", 0 },
@@ -76,38 +78,27 @@ public class DeskManager : Singleton<DeskManager>
             {"6", 0 },
             {"7", 0 },
             {"8", 0 },
-            {"9", 0}
-        };  
+            {"9", 0 }
+        };
+
+        _diceNumRemain = new Dictionary<string, int>()
+        {
+            {"0", 0 },
+            {"1", 0 },
+            {"2", 0 },
+            {"3", 0 },
+            {"4", 0 },
+            {"5", 0 },
+            {"6", 0 },
+            {"7", 0 },
+            {"8", 0 },
+            {"9", 0 }
+        };
     }
 
     void Update()
     {
-        //if (Input.GetMouseButtonDown(0) && currentState == DeskState.Idle)
-        //{
-        //    RollDice();
-        //}
-        //else if (Input.GetMouseButtonDown(0) && currentState == DeskState.ShowingResults)
-        //{
-        //    // 清理桌面，先取消订阅事件再销毁对象
-        //    foreach (DiceView dv in diceViewList)
-        //    {
-        //        if (dv != null)
-        //        {
-        //            dv.OnDiceClicked -= HandleDiceClicked;
-        //            Destroy(dv.gameObject);
-        //        }
-        //    }
-        //    diceViewList.Clear();
-        //    // 重置骰子槽位
-        //    for (int i = 0; i < diceSlots.Count; i++)
-        //    {
-        //        DiceSlot slot = diceSlots[i];
-        //        slot.isOccupied = false;
-        //        diceSlots[i] = slot;
-        //    }
-        //    occupiedSlotCount = 0;
-        //    currentState = DeskState.Idle;
-        //}
+
     }
 
     public int GetSelectedDiceCount()
@@ -138,14 +129,7 @@ public class DeskManager : Singleton<DeskManager>
                 ).SetEase(Ease.Linear) // 设置线性时间插值
                 .OnComplete(() =>
                 {
-                    // 动画完成后销毁 DiceView
-                    dv.OnDiceClicked -= HandleDiceClicked;
-                    if(diceViewList.Contains(dv))
-                    {
-                        diceViewList.Remove(dv);
-                    }
-                    
-                    foreach(var slot in diceSlots)
+                    foreach (var slot in diceSlots)
                     {
                         if(slot.diceView == dv)
                         {
@@ -155,31 +139,51 @@ public class DeskManager : Singleton<DeskManager>
                             int index = diceSlots.IndexOf(slot);
                             diceSlots[index] = clearedSlot;
                             occupiedSlotCount--;
-                            Debug.Log($"Cleared slot at index {index}, occupiedSlotCount: {occupiedSlotCount}");
                             break;
                         }
                     }
 
                     Destroy(dv.gameObject);
                 });
+
+                dv.OnDiceClicked -= HandleDiceClicked;
+
+                if (diceViewList.Contains(dv))
+                {
+                    diceViewList.Remove(dv);
+                }
             }
         }
 
         diceSelected.Clear();
 
-        //clear selection record
-        foreach (string key in diceNumSelected.Keys.ToList())
+        foreach (var dv in diceViewList)
         {
-            diceNumSelected[key] = 0;
+            if (dv != null)
+            {
+                if (_diceNumRemain.ContainsKey(dv.dice.num.ToString()))
+                {
+                    _diceNumRemain[dv.dice.num.ToString()] += 1;
+                }
+            }
         }
 
-        Debug.Log($"diceNumSelected.Count: {diceNumSelected.Count}");
+        //clear selection record
+        foreach (string key in _diceNumSelected.Keys.ToList())
+        {
+            _diceNumSelected[key] = 0;
+        }
+
+        OnDeskClear?.Invoke(_diceNumRemain);
+        Debug.Log($"remain diceView{diceViewList.Count}");
 
         currentState = DeskState.Idle;
     }
 
     public void RollDice()
     {
+        RemainDiceNumClear();
+        Debug.Log($"!!!!!!!!!!!!!!!!remain diceView{diceViewList.Count}");
         if (DicePackage.Instance == null)
         {
             Debug.LogWarning("DicePackage.Instance 为 null，无法抽取骰子。");
@@ -258,15 +262,23 @@ public class DeskManager : Singleton<DeskManager>
         }
     }
 
+    private void RemainDiceNumClear()
+    {
+        foreach (string key in _diceNumRemain.Keys.ToList())
+        {
+            _diceNumRemain[key] = 0;
+        }
+    }
+
     private void SelectDice(DiceView dv)
     {
         if (dv == null) return;
 
         // 确保字典包含该数字的键
         string key = dv.dice.num.ToString();
-        if (!diceNumSelected.ContainsKey(key))
+        if (!_diceNumSelected.ContainsKey(key))
         {
-            diceNumSelected[key] = 0;
+            _diceNumSelected[key] = 0;
         }
 
         // cansel selection implementation
@@ -276,33 +288,33 @@ public class DeskManager : Singleton<DeskManager>
             diceSelected.Remove(dv);
 
             // 减少该数字的计数（不小于 0）
-            diceNumSelected[key] = Mathf.Max(0, diceNumSelected[key] - 1);
+            _diceNumSelected[key] = Mathf.Max(0, _diceNumSelected[key] - 1);
 
             // 重新计算最大重复数（键 "0"），跳过键 "0" 本身
             int max = 0;
-            foreach (var kvp in diceNumSelected)
+            foreach (var kvp in _diceNumSelected)
             {
                 if (kvp.Key == "0") continue;
                 if (kvp.Value > max) max = kvp.Value;
             }
-            diceNumSelected["0"] = max;
+            _diceNumSelected["0"] = max;
 
-            Debug.Log($"取消选择：数值 {key}，当前数量 {diceNumSelected[key]}，最大重复数 {diceNumSelected["0"]}");
+            Debug.Log($"取消选择：数值 {key}，当前数量 {_diceNumSelected[key]}，最大重复数 {_diceNumSelected["0"]}");
             return;
         }
 
         // selection implementation
         diceSelected.Add(dv);
-        diceNumSelected[key] = diceNumSelected.ContainsKey(key) ? diceNumSelected[key] + 1 : 1;
+        _diceNumSelected[key] = _diceNumSelected.ContainsKey(key) ? _diceNumSelected[key] + 1 : 1;
         dv.ViewUp();
 
         // 更新最大重复数（键 "0"）
-        if (diceNumSelected[key] > diceNumSelected["0"])
+        if (_diceNumSelected[key] > _diceNumSelected["0"])
         {
-            diceNumSelected["0"] = diceNumSelected[key];
+            _diceNumSelected["0"] = _diceNumSelected[key];
         }
 
-        Debug.Log($"选择：数值 {key}，当前数量 {diceNumSelected[key]}，最大重复数 {diceNumSelected["0"]}");
+        Debug.Log($"选择：数值 {key}，当前数量 {_diceNumSelected[key]}，最大重复数 {_diceNumSelected["0"]}");
     }
 
     // 点击事件处理器：对外暴露的 DiceView 会在被点时调用此方法
@@ -318,7 +330,7 @@ public class DeskManager : Singleton<DeskManager>
         }
 
         SelectDice(dv);
-        OnDiceSelect?.Invoke(diceNumSelected);
+        OnDiceSelect?.Invoke(_diceNumSelected);
 
         // 触发 DiceView 自身的重掷并刷新展示
         Debug.Log("收到被点击的事件。");

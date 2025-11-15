@@ -9,8 +9,6 @@ public class BtnManger : Singleton<BtnManger>
     // 在 Inspector 中拖拽 State B 按钮对象
     public GameObject ScoreBtn;
 
-    public event System.Action OnScoreBtnClicked;
-
     void Start()
     {
         // 场景加载时，确保 State A 是可见的，State B 是隐藏的。
@@ -59,7 +57,5 @@ public class BtnManger : Singleton<BtnManger>
         ScoreBtn.SetActive(false);
         RollBtn.SetActive(true);
         DeskManager.Instance.ClearSelectedDice();
-        OnScoreBtnClicked?.Invoke();
-        // 【可选】可以在这里添加执行状态 B 对应的功能代码
     }
 }

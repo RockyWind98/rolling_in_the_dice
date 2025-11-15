@@ -15,6 +15,8 @@ public class ScoreGets : MonoBehaviour
     // 保存 Tween 引用以便取消/替换正在进行的动画
     private Tweener _valueTween;
     private Tweener _shakeTween;
+    private int currentBase = 0;
+    private int currentMultiplier = 0;
 
     void Start()
     {
@@ -28,8 +30,9 @@ public class ScoreGets : MonoBehaviour
             txt.text = "0";
         }
 
-        ScoreRules.Instance.OnTotalCount += SetScoreGets;
-        BtnManger.Instance.OnScoreBtnClicked += ShowScoreGets;
+        ScoreRules.Instance.OnRuleCount += UpdateRuleText;
+        ScoreRules.Instance.OnBaseCount += UpdateBaseText;
+        DeskManager.Instance.OnDeskClear += ShowScoreGets;
     }
 
     void OnDestroy()
@@ -39,14 +42,37 @@ public class ScoreGets : MonoBehaviour
         if (_shakeTween != null && _shakeTween.IsActive()) _shakeTween.Kill();
     }
 
-    public void SetScoreGets(int score)
+    private void UpdateRuleText(ScoreRule rule)
     {
-        _scoreGets += score;
+        UpdateMultiplierValue(rule.multiplier);
+    }
+
+    private void UpdateBaseText(int value)
+    {
+        UpdateBaseValue(value);
+    }
+
+    private void UpdateBaseValue(int value)
+    {
+        currentBase = value;
+        Debug.Log($"currentBase: {currentBase}");
+    }
+
+    private void UpdateMultiplierValue(int value) 
+    {
+        currentMultiplier = value;
+    }
+
+    private void SetScoreGets()
+    {
+        _scoreGets += currentBase * currentMultiplier;
+        Debug.Log($"ScoreGets SetScoreGets called, new _scoreGets: {_scoreGets}");
     }
 
     // 播放从当前显示值到 _scoreGets 的快速增/减动画，同时伴随震动
-    public void ShowScoreGets()
+    public void ShowScoreGets(Dictionary<string, int> diceNumRemain)
     {
+        SetScoreGets();
         if (txt == null)
         {
             Debug.LogError("ScoreGets.ShowScoreGets called but txt is null.");

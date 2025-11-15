@@ -9,17 +9,16 @@ public class NaviHands : MonoBehaviour
     [SerializeField] private TMP_Text baseValue;
     [SerializeField] private TMP_Text multiplierValue;
 
-    private int currentBase = 0;
-    private int currentMultiplier = 0;
     // Start is called before the first frame update
     void Start()
     {
         baseValue.text = "0";
         multiplierValue.text = "0";
         handsName.text = "未中奖";
-        ScoreRules.Instance.OnRuleCount += OnRuleUpdate;
-        ScoreRules.Instance.OnTotalCount += OnBaseValueUpdate;
-        BtnManger.Instance.OnScoreBtnClicked += InitAllText;
+        ScoreRules.Instance.OnRuleCount += UpdateRuleText;
+        ScoreRules.Instance.OnBaseCount += UpdateBaseText;
+        ScoreRules.Instance.OnScoreClear += UpdateOnNewRound;
+        //BtnManger.Instance.OnScoreBtnClicked += InitAllText;
     }
 
     // Update is called once per frame
@@ -28,20 +27,20 @@ public class NaviHands : MonoBehaviour
         
     }
 
-    private void InitAllText()
+    private void UpdateOnNewRound(int remainBase)
     {
-        UpdateHandsName(name: "未中奖");
-        UpdateBaseValue(value: 0);
-        UpdateMultiplierValue(value: 0);
+        UpdateBaseValue(remainBase);
+        UpdateMultiplierValue(0);
+        UpdateHandsName("未中奖");
     }
 
-    private void OnRuleUpdate(ScoreRule rule)
+    private void UpdateRuleText(ScoreRule rule)
     {
         UpdateHandsName(rule.ruleName);
         UpdateMultiplierValue(rule.multiplier);
     }
 
-    private void OnBaseValueUpdate(int value)
+    private void UpdateBaseText(int value)
     {
         UpdateBaseValue(value);
     }
@@ -53,13 +52,12 @@ public class NaviHands : MonoBehaviour
 
     private void UpdateBaseValue(int value)
     {
+        Debug.Log($"UpdateBaseValue called with value: {value}");
         baseValue.text = value.ToString();
-        currentBase = value;
     }
 
     private void UpdateMultiplierValue(int value) 
     {
         multiplierValue.text = value.ToString();
-        currentMultiplier = value;
     }
 }
