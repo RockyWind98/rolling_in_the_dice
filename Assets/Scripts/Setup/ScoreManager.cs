@@ -208,10 +208,8 @@ public class ScoreManager : Singleton<ScoreManager>
                     }
                 }
                 currentRule = rule;
-                Debug.Log($"public base -- currentScore: {currentScore}");
                 OnBaseCount?.Invoke(currentScore);
                 OnRuleCount?.Invoke(currentRule);
-                Debug.Log($"Current Score: {currentScore} using rule: {currentRule.ruleName}");
                 return;
             }
             else

@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class DeskManager : Singleton<DeskManager>
 {
+    public Button rerollBtn;
+
     struct DiceSlot
     {
         public Vector3 worldPos;
@@ -57,6 +60,7 @@ public class DeskManager : Singleton<DeskManager>
     private Dictionary<string, int> _diceNumSelected;
     private Dictionary<string, int> _diceNumRemain;
     private int occupiedSlotCount = 0;
+    List<Dice> _diceTake = new List<Dice>();
 
     void Start()
     {
@@ -105,6 +109,26 @@ public class DeskManager : Singleton<DeskManager>
     {
         return diceSelected.Count;
     }
+
+    public void ClearDeskSettlement()
+    {
+        ClearSelectedDice();
+        // get & public _diceNumRemain
+        foreach (var dv in diceViewList)
+        {
+            if (dv != null)
+            {
+                if (_diceNumRemain.ContainsKey(dv.dice.num.ToString()))
+                {
+                    _diceNumRemain[dv.dice.num.ToString()] += 1;
+                }
+            }
+        }
+
+        OnDeskClear?.Invoke(_diceNumRemain);
+        RemainDiceNumClear();
+    }
+
     public void ClearSelectedDice()
     {
         //draw clear animation
@@ -129,27 +153,28 @@ public class DeskManager : Singleton<DeskManager>
                 ).SetEase(Ease.Linear) // 设置线性时间插值
                 .OnComplete(() =>
                 {
-                    foreach (var slot in diceSlots)
-                    {
-                        if(slot.diceView == dv)
-                        {
-                            DiceSlot clearedSlot = slot;
-                            clearedSlot.isOccupied = false;
-                            clearedSlot.diceView = null;
-                            int index = diceSlots.IndexOf(slot);
-                            diceSlots[index] = clearedSlot;
-                            occupiedSlotCount--;
-                            break;
-                        }
-                    }
-
                     Destroy(dv.gameObject);
                 });
+
+                foreach (var slot in diceSlots)
+                {
+                    if (slot.diceView == dv)
+                    {
+                        DiceSlot clearedSlot = slot;
+                        clearedSlot.isOccupied = false;
+                        clearedSlot.diceView = null;
+                        int index = diceSlots.IndexOf(slot);
+                        diceSlots[index] = clearedSlot;
+                        occupiedSlotCount--;
+                        break;
+                    }
+                }
 
                 dv.OnDiceClicked -= HandleDiceClicked;
 
                 if (diceViewList.Contains(dv))
                 {
+                    DicePackage.Instance.DiscardDice(dv.dice);
                     diceViewList.Remove(dv);
                 }
             }
@@ -157,24 +182,14 @@ public class DeskManager : Singleton<DeskManager>
 
         diceSelected.Clear();
 
-        foreach (var dv in diceViewList)
-        {
-            if (dv != null)
-            {
-                if (_diceNumRemain.ContainsKey(dv.dice.num.ToString()))
-                {
-                    _diceNumRemain[dv.dice.num.ToString()] += 1;
-                }
-            }
-        }
-
         //clear selection record
         foreach (string key in _diceNumSelected.Keys.ToList())
         {
             _diceNumSelected[key] = 0;
         }
 
-        OnDeskClear?.Invoke(_diceNumRemain);
+        _diceTake.Clear();
+
         Debug.Log($"remain diceView{diceViewList.Count}");
 
         currentState = DeskState.Idle;
@@ -182,8 +197,8 @@ public class DeskManager : Singleton<DeskManager>
 
     public void RollDice()
     {
-        RemainDiceNumClear();
-        Debug.Log($"!!!!!!!!!!!!!!!!remain diceView{diceViewList.Count}");
+        OnDiceSelect?.Invoke(_diceNumSelected);
+
         if (DicePackage.Instance == null)
         {
             Debug.LogWarning("DicePackage.Instance 为 null，无法抽取骰子。");
@@ -191,15 +206,14 @@ public class DeskManager : Singleton<DeskManager>
         }
 
         // 从牌库中尽量取 diceCount 个骰子
-        List<Dice> taken = new List<Dice>();
         for (int i = 0; i < diceCount - diceViewList.Count; i++)
         {
             Dice d = DicePackage.Instance.GetDice();
             if (d == null) break;
-            taken.Add(d);
+            _diceTake.Add(d);
         }
 
-        if (taken.Count == 0 && diceViewList.Count == 0)
+        if (_diceTake.Count == 0 && diceViewList.Count == 0)
         {
             Debug.Log("未能获取到任何骰子。");
             return;
@@ -207,10 +221,10 @@ public class DeskManager : Singleton<DeskManager>
 
         currentState = DeskState.Rolling;
 
-        Debug.Log($"抽取到 {taken.Count} 个骰子进行掷骰。");
+        Debug.Log($"抽取到 {_diceTake.Count} 个骰子进行掷骰。");
 
         // 对每个骰子实例化并抛掷到随机未被 UI 遮盖的位置
-        for (int i = 0; i < taken.Count; i++)
+        for (int i = 0; i < _diceTake.Count; i++)
         {
             Vector2 screenPoint = new Vector2(
                 Random.Range(600f, Screen.width - 100f),
@@ -220,7 +234,7 @@ public class DeskManager : Singleton<DeskManager>
             Vector3 worldTarget = ScreenPointToWorldAtSpawnDepth(screenPoint);
 
             // 实例化
-            DiceView diceView = DiceViewCreator.Instance.CreateDiceView(taken[i], spawnPoint.position, Quaternion.identity);
+            DiceView diceView = DiceViewCreator.Instance.CreateDiceView(_diceTake[i], spawnPoint.position, Quaternion.identity);
 
             // 注册点击事件（委托会传回该 DiceView 实例）
             diceView.OnDiceClicked += HandleDiceClicked;
@@ -243,9 +257,8 @@ public class DeskManager : Singleton<DeskManager>
                     slot.diceView = diceView;
                     diceSlots[j] = slot;
                     occupiedSlotCount++;
-                    if(i == taken.Count - 1)
+                    if(i == _diceTake.Count - 1)
                     {
-                        Debug.Log("duration + waitForArrange:" + (throwDuration + waitForArrange));
                         diceView.transform.DOMove(diceSlots[j].worldPos, 0.5f).SetDelay(throwDuration + waitForArrange).OnComplete(() =>
                         {
                             currentState = DeskState.ShowingResults;
@@ -253,7 +266,6 @@ public class DeskManager : Singleton<DeskManager>
                     } 
                     else
                     {
-                        Debug.Log("duration + waitForArrange:" + (throwDuration + waitForArrange));
                         diceView.transform.DOMove(diceSlots[j].worldPos, 0.5f).SetDelay(throwDuration + waitForArrange);
                     }
                     break;
@@ -298,8 +310,6 @@ public class DeskManager : Singleton<DeskManager>
                 if (kvp.Value > max) max = kvp.Value;
             }
             _diceNumSelected["0"] = max;
-
-            Debug.Log($"取消选择：数值 {key}，当前数量 {_diceNumSelected[key]}，最大重复数 {_diceNumSelected["0"]}");
             return;
         }
 
@@ -313,8 +323,6 @@ public class DeskManager : Singleton<DeskManager>
         {
             _diceNumSelected["0"] = _diceNumSelected[key];
         }
-
-        Debug.Log($"选择：数值 {key}，当前数量 {_diceNumSelected[key]}，最大重复数 {_diceNumSelected["0"]}");
     }
 
     // 点击事件处理器：对外暴露的 DiceView 会在被点时调用此方法
@@ -331,9 +339,6 @@ public class DeskManager : Singleton<DeskManager>
 
         SelectDice(dv);
         OnDiceSelect?.Invoke(_diceNumSelected);
-
-        // 触发 DiceView 自身的重掷并刷新展示
-        Debug.Log("收到被点击的事件。");
     }
 
     // 将屏幕点转换为在 spawnPoint 深度上的世界坐标

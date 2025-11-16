@@ -52,7 +52,6 @@ public class NaviHands : MonoBehaviour
 
     private void UpdateBaseValue(int value)
     {
-        Debug.Log($"UpdateBaseValue called with value: {value}");
         baseValue.text = value.ToString();
     }
 

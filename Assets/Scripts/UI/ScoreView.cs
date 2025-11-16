@@ -55,7 +55,6 @@ public class ScoreView : MonoBehaviour
     private void UpdateBaseValue(int value)
     {
         currentBase = value;
-        Debug.Log($"currentBase: {currentBase}");
     }
 
     private void UpdateMultiplierValue(int value) 

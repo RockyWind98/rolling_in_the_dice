@@ -49,11 +49,11 @@ public class DicePackage : Singleton<DicePackage>
             // 抽出 diceDiscard 中的所有骰子，打乱顺序后放回 diceStore 中
             if (diceDiscard.Count > 0)
             {
-                ShuffleDice();
                 // 将打乱后的弃牌堆全部移回牌库并清空弃牌堆
                 diceStore.AddRange(diceDiscard);
                 diceDiscard.Clear();
                 Debug.Log("补充牌库成功");
+                ShuffleDice();
             }
             else
             {
@@ -64,9 +64,14 @@ public class DicePackage : Singleton<DicePackage>
 
         // 从牌库取出一颗骰子并返回
         Dice result = diceStore[0];
-        diceDiscard.Add(result);
         diceStore.RemoveAt(0);
         return result;
+    }
+
+    public void DiscardDice(Dice dice)
+    {
+        diceDiscard.Add(dice);
+        Debug.Log($"弃牌堆增加一颗骰子：{dice.diceType}");
     }
 
     public void ShuffleDice()
