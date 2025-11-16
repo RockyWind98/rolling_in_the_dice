@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using DG.Tweening;
 
-public class ScoreGets : MonoBehaviour
+public class ScoreView : MonoBehaviour
 {
     [SerializeField] private TMP_Text txt;
 
@@ -22,7 +22,7 @@ public class ScoreGets : MonoBehaviour
     {
         if (txt == null)
         {
-            Debug.LogError("ScoreGets: txt is null.");
+            Debug.LogError("ScoreView: txt is null.");
             return;
         }
         else
@@ -30,8 +30,8 @@ public class ScoreGets : MonoBehaviour
             txt.text = "0";
         }
 
-        ScoreRules.Instance.OnRuleCount += UpdateRuleText;
-        ScoreRules.Instance.OnBaseCount += UpdateBaseText;
+        ScoreManager.Instance.OnRuleCount += UpdateRuleText;
+        ScoreManager.Instance.OnBaseCount += UpdateBaseText;
         DeskManager.Instance.OnDeskClear += ShowScoreGets;
     }
 
@@ -66,7 +66,7 @@ public class ScoreGets : MonoBehaviour
     private void SetScoreGets()
     {
         _scoreGets += currentBase * currentMultiplier;
-        Debug.Log($"ScoreGets SetScoreGets called, new _scoreGets: {_scoreGets}");
+        Debug.Log($"ScoreView SetScoreGets called, new _scoreGets: {_scoreGets}");
     }
 
     // 播放从当前显示值到 _scoreGets 的快速增/减动画，同时伴随震动
@@ -75,7 +75,7 @@ public class ScoreGets : MonoBehaviour
         SetScoreGets();
         if (txt == null)
         {
-            Debug.LogError("ScoreGets.ShowScoreGets called but txt is null.");
+            Debug.LogError("ScoreView.ShowScoreGets called but txt is null.");
             return;
         }
 

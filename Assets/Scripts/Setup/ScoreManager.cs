@@ -65,11 +65,10 @@ public class ScoreRule
         //5 ----------- parse entries[4]: description
         description = entries[4];
 
-        Debug.Log($"parse end!!!!!!!!!!!!!!!!!!{ruleName}");
     }
 }
 
-public class ScoreRules : Singleton<ScoreRules>
+public class ScoreManager : Singleton<ScoreManager>
 {
     public TextAsset rulesCsv;
     public List<ScoreRule> rulesList = new List<ScoreRule>();
@@ -81,10 +80,16 @@ public class ScoreRules : Singleton<ScoreRules>
     public event System.Action<int> OnScoreClear;
 
     private int _remainBase = 0;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        LoadRules();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        LoadRules();
         DeskManager.Instance.OnDiceSelect += ScoreUpdate;
         DeskManager.Instance.OnDeskClear += ScoreClear;
     }

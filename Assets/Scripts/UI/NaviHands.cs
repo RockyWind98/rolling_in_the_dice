@@ -15,9 +15,9 @@ public class NaviHands : MonoBehaviour
         baseValue.text = "0";
         multiplierValue.text = "0";
         handsName.text = "未中奖";
-        ScoreRules.Instance.OnRuleCount += UpdateRuleText;
-        ScoreRules.Instance.OnBaseCount += UpdateBaseText;
-        ScoreRules.Instance.OnScoreClear += UpdateOnNewRound;
+        ScoreManager.Instance.OnRuleCount += UpdateRuleText;
+        ScoreManager.Instance.OnBaseCount += UpdateBaseText;
+        ScoreManager.Instance.OnScoreClear += UpdateOnNewRound;
         //BtnManger.Instance.OnScoreBtnClicked += InitAllText;
     }
 
