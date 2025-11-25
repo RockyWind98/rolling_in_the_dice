@@ -8,8 +8,7 @@ public class DicePackage : Singleton<DicePackage>
     // Start is called before the first frame update
     void Start()
     {
-        TestInit();
-        ShuffleDice();
+
     }
 
     // Update is called once per frame
@@ -18,26 +17,42 @@ public class DicePackage : Singleton<DicePackage>
         
     }
 
-    public void TestInit()
+    public void DiceStoreInit()
     {
+        if(PlayerDataManager.Instance == null)
+        {
+            Debug.LogError("PlayerDataManager Instance is null!");
+            return;
+        }
         if (diceStore.Count <= 0)
         {
-            for (int i = 0; i < 5; i++)
+            foreach (string itemId in PlayerDataManager.Instance.starterItemIds)
             {
-                diceStore.Add(new CommonDice());
+                GameItem item = PlayerDataManager.Instance.gameItemDataBase.GetItemById(itemId);
+                if (item is DiceItem diceItem)
+                {
+                    if(diceItem is CommonDiceItem)
+                    {
+                        diceStore.Add(new CommonDice(diceItem));
+                    }
+                    else if (diceItem is OddDiceItem)
+                    {
+                        diceStore.Add(new OddDice(diceItem));
+                    }
+                    else if (diceItem is EvenDiceItem)
+                    {
+                        diceStore.Add(new EvenDice(diceItem));
+                    }
+                    else if (diceItem is WildDiceItem)
+                    {
+                        diceStore.Add(new WildDice(diceItem));
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"未找到物品ID对应的骰子：{itemId}");
+                }
             }
-
-            for (int i = 0; i < 3; i++)
-            {
-                diceStore.Add(new OddDice());
-            }
-
-            for (int i = 0; i < 3; i++)
-            {
-                diceStore.Add(new EvenDice());
-            }
-
-            diceStore.Add(new WildDice());
         }
     }
 
@@ -65,13 +80,14 @@ public class DicePackage : Singleton<DicePackage>
         // 从牌库取出一颗骰子并返回
         Dice result = diceStore[0];
         diceStore.RemoveAt(0);
+        result.RollDice();
+
         return result;
     }
 
     public void DiscardDice(Dice dice)
     {
         diceDiscard.Add(dice);
-        Debug.Log($"弃牌堆增加一颗骰子：{dice.diceType}");
     }
 
     public void ShuffleDice()

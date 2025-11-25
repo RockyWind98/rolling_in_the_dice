@@ -8,92 +8,85 @@ public enum DiceType
     Wild
 }
 
-public enum DiceRarity
-{
-    Common,
-    Rare,
-    Epic,
-    Legendary
-}
-
 [System.Serializable]
 public abstract class Dice
 {
     public DiceType diceType;
-    public DiceRarity diceRarity;
+    public ItemRarity diceRarity => _diceItem.itemRarity;
     public int num;
+    public string diceString;
+    public DiceItem _diceItem;
 
-    public virtual void Roll()
+    public virtual void RollDice()
     {
-        // 默认实现为空，由子类重写
+
     }
 }
 
 [System.Serializable]
 public class CommonDice : Dice
 {
-    public CommonDice()
+    public CommonDice(DiceItem item)
     {
-        // num 取随机 1 到 6 之间的一个值
-        num = Random.Range(1, 7);
+        _diceItem = item;
         diceType = DiceType.Common;
-        diceRarity = DiceRarity.Common;
     }
 
-    public override void Roll()
+    public override void RollDice()
     {
-        num = Random.Range(1, 7);
+        _diceItem.Roll();
+        num = _diceItem.num;
+        diceString = _diceItem.num.ToString();
     }
 }
 
 [System.Serializable]
 public class OddDice : Dice
 {
-    public OddDice()
+    public OddDice(DiceItem item)
     {
-        // 从 {1,3,5} 中随机选一个
-        int idx = Random.Range(0, 3); // 0,1,2
-        num = 1 + idx * 2;
-        //设置骰子的类型和稀有度
         diceType = DiceType.Odd;
-        diceRarity = DiceRarity.Common;
+        _diceItem = item;
     }
 
-    public override void Roll()
+    public override void RollDice()
     {
-        int idx = Random.Range(0, 3); // 0,1,2
-        num = 1 + idx * 2;
+        _diceItem.Roll();
+        num = _diceItem.num;
+        diceString = _diceItem.num.ToString();
     }
 }
 
 [System.Serializable]
 public class EvenDice : Dice
 {
-    public EvenDice()
+    public EvenDice(DiceItem item)
     {
-        // 从 {2,4,6} 中随机选一个
-        int idx = Random.Range(0, 3); // 0,1,2
-        num = 2 + idx * 2;
-        //设置骰子的类型和稀有度
         diceType = DiceType.Even;
-        diceRarity = DiceRarity.Rare;
+        _diceItem = item;
     }
 
-    public override void Roll()
+    public override void RollDice()
     {
-        int idx = Random.Range(0, 3); // 0,1,2
-        num = 2 + idx * 2;
+        _diceItem.Roll();
+        num = _diceItem.num;
+        diceString = _diceItem.num.ToString();
     }
 }
 
 [System.Serializable]
 public class WildDice : Dice
 {
-    public WildDice()
+    public WildDice(DiceItem item)
     {
-        num = 9;
-        //设置骰子的类型和稀有度
         diceType = DiceType.Wild;
-        diceRarity = DiceRarity.Legendary;
+        _diceItem = item;
+    }
+
+    public override void RollDice()
+    {
+        _diceItem.Roll();
+        num = _diceItem.num;
+        diceString = _diceItem.diceString;
     }
 }

@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -60,7 +61,7 @@ public class DeskManager : Singleton<DeskManager>
     private Dictionary<string, int> _diceNumSelected;
     private Dictionary<string, int> _diceNumRemain;
     private int occupiedSlotCount = 0;
-    List<Dice> _diceTake = new List<Dice>();
+    private List<Dice> _diceTake = new List<Dice>();
 
     void Start()
     {

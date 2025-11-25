@@ -9,7 +9,7 @@ public class BtnManger : Singleton<BtnManger>
     public GameObject rerollBtn;
     public TMP_Text rerollNumText;
 
-    private int _rerollNum = 5;
+    private int _rerollRemain = 5;
 
     void Start()
     {
@@ -18,7 +18,12 @@ public class BtnManger : Singleton<BtnManger>
         rollBtn.SetActive(true);
         scoreBtn.SetActive(false);
         DeskManager.Instance.OnDiceSelect += UpdateRerollBtnState;
-        rerollNumText.text = _rerollNum.ToString();
+    }
+
+    public void SetRerollNum(int num)
+    {
+        _rerollRemain = num;
+        rerollNumText.text = num.ToString();
     }
 
     // 当 Button A 被点击时调用此方法
@@ -42,7 +47,7 @@ public class BtnManger : Singleton<BtnManger>
             Debug.LogWarning("当前状态不允许点击 Roll 按钮");
         }
 
-        _rerollNum = 5;
+        _rerollRemain = PlayerDataManager.Instance.GetPlayerRerollCount();
     }
 
     // 当 Button B 被点击时调用此方法
@@ -74,10 +79,10 @@ public class BtnManger : Singleton<BtnManger>
             return;
         }
 
-        if(_rerollNum > 0)
+        if(_rerollRemain > 0)
         {
-            _rerollNum--;
-            rerollNumText.text = _rerollNum.ToString();
+            _rerollRemain--;
+            rerollNumText.text = _rerollRemain.ToString();
             DeskManager.Instance.ClearSelectedDice();
             DeskManager.Instance.RollDice();
         }
@@ -87,7 +92,7 @@ public class BtnManger : Singleton<BtnManger>
     {
         if (DeskManager.Instance.GetSelectedDiceCount() > 0)
         {
-            if (rerollBtn != null && !rerollBtn.activeSelf && _rerollNum > 0)
+            if (rerollBtn != null && !rerollBtn.activeSelf && _rerollRemain > 0)
             {
                 rerollBtn.SetActive(true);
             }

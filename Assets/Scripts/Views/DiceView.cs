@@ -43,21 +43,21 @@ public class DiceView : MonoBehaviour, IPointerDownHandler
     {
         if(dice is CommonDice commonDice)
         {
-            txt.text = commonDice.num.ToString();
+            txt.text = commonDice.diceString;
         }
         else if(dice is OddDice oddDice)
         {
-            txt.text = oddDice.num.ToString();
+            txt.text = oddDice.diceString;
             diceBg.GetComponent<SpriteRenderer>().color = Color.Lerp(Color.white, Color.blue, 0.5f);
         }
         else if(dice is EvenDice evenDice)
         {
-            txt.text = evenDice.num.ToString();
+            txt.text = evenDice.diceString;
             diceBg.GetComponent<SpriteRenderer>().color = Color.Lerp(Color.white, Color.red, 0.5f);
         }
-        else if(dice is WildDice)
+        else if(dice is WildDice wildDice)
         {
-            txt.text = "*";
+            txt.text = wildDice.diceString;
             diceBg.GetComponent<SpriteRenderer>().color = Color.yellow;
         }
     }
@@ -78,12 +78,6 @@ public class DiceView : MonoBehaviour, IPointerDownHandler
         this.transform.DOMove(upTarget, 0.15f);
     }
 
-    public void RollDice()
-    {
-        dice.Roll();
-        ShowDice();
-    }
-
     public void SetDice(Dice d)
     {
         dice = d;
@@ -92,6 +86,5 @@ public class DiceView : MonoBehaviour, IPointerDownHandler
     public void OnPointerDown(PointerEventData eventData)
     {
         OnDiceClicked?.Invoke(this);
-        Debug.Log($"DiceView clicked, type {dice.diceType}");
     }
 }
