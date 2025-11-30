@@ -16,4 +16,4 @@ MonoBehaviour:
   _itemName: WildDice
   _itemRariry: 3
   diceString: '*'
-  num: 9
+  num: 5

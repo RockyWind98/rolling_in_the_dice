@@ -6,11 +6,13 @@ using DG.Tweening;
 
 public class ScoreView : MonoBehaviour
 {
-    [SerializeField] private TMP_Text txt;
+    [SerializeField] private TMP_Text scoreCurrentText_;
+    [SerializeField] private TMP_Text scorePassText_;
 
     // 保存当前显示值，避免每次从文本解析
     private int _currentDisplayed = 0;
     private int _scoreGets = 0;
+    private int _scorePass = 0;
 
     // 保存 Tween 引用以便取消/替换正在进行的动画
     private Tweener _valueTween;
@@ -20,19 +22,21 @@ public class ScoreView : MonoBehaviour
 
     void Start()
     {
-        if (txt == null)
+        if (scoreCurrentText_ == null)
         {
-            Debug.LogError("ScoreView: txt is null.");
+            Debug.LogError("ScoreView: scoreCurrentText_ is null.");
             return;
         }
         else
         {
-            txt.text = "0";
+            scoreCurrentText_.text = "0";
         }
 
         ScoreManager.Instance.OnRuleCount += UpdateRuleText;
         ScoreManager.Instance.OnBaseCount += UpdateBaseText;
         DeskManager.Instance.OnDeskClear += ShowScoreGets;
+        _scorePass = StageManager.Instance.GetPassScore();
+        scorePassText_.text = _scorePass.ToString();
     }
 
     void OnDestroy()
@@ -72,9 +76,9 @@ public class ScoreView : MonoBehaviour
     public void ShowScoreGets(Dictionary<string, int> diceNumRemain)
     {
         SetScoreGets();
-        if (txt == null)
+        if (scoreCurrentText_ == null)
         {
-            Debug.LogError("ScoreView.ShowScoreGets called but txt is null.");
+            Debug.LogError("ScoreView.ShowScoreGets called but scoreCurrentText_ is null.");
             return;
         }
 
@@ -92,18 +96,18 @@ public class ScoreView : MonoBehaviour
         _valueTween = DOVirtual.Float(start, _scoreGets, duration, value =>
         {
             _currentDisplayed = Mathf.RoundToInt(value);
-            txt.text = _currentDisplayed.ToString();
+            scoreCurrentText_.text = _currentDisplayed.ToString();
         }).SetEase(Ease.OutCubic);
 
         // 伴随震动（锚点抖动），与数字动画同长
         // 强度、vibrato、随机度可根据视觉需求微调
-        _shakeTween = txt.rectTransform.DOShakeAnchorPos(duration, new Vector2(12f, 6f), vibrato: 12, randomness: 90f).SetEase(Ease.Linear);
+        _shakeTween = scoreCurrentText_.rectTransform.DOShakeAnchorPos(duration, new Vector2(12f, 6f), vibrato: 12, randomness: 90f).SetEase(Ease.Linear);
 
         // 完成后确保最终值精确
         _valueTween.OnComplete(() =>
         {
             _currentDisplayed = _scoreGets;
-            txt.text = _scoreGets.ToString();
+            scoreCurrentText_.text = _scoreGets.ToString();
 
             if (_shakeTween != null && _shakeTween.IsActive())
                 _shakeTween.Kill();

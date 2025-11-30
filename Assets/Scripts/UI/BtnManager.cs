@@ -8,8 +8,10 @@ public class BtnManger : Singleton<BtnManger>
     public GameObject scoreBtn;
     public GameObject rerollBtn;
     public TMP_Text rerollNumText;
+    public TMP_Text scoringCountText;
 
     private int _rerollRemain = 5;
+    private int _scoringRemain = 5;
 
     void Start()
     {
@@ -18,6 +20,12 @@ public class BtnManger : Singleton<BtnManger>
         rollBtn.SetActive(true);
         scoreBtn.SetActive(false);
         DeskManager.Instance.OnDiceSelect += UpdateRerollBtnState;
+    }
+
+    public void SetScoringCount(int count)
+    {
+        _scoringRemain = count;
+        scoringCountText.text = count.ToString();
     }
 
     public void SetRerollNum(int num)
@@ -48,6 +56,7 @@ public class BtnManger : Singleton<BtnManger>
         }
 
         _rerollRemain = PlayerDataManager.Instance.GetPlayerRerollCount();
+        rerollNumText.text = _rerollRemain.ToString();
     }
 
     // 当 Button B 被点击时调用此方法
@@ -69,6 +78,11 @@ public class BtnManger : Singleton<BtnManger>
         rollBtn.SetActive(true);
         rerollBtn.SetActive(false);
         DeskManager.Instance.ClearDeskSettlement();
+        _scoringRemain--;
+        scoringCountText.text = _scoringRemain.ToString();
+
+        Debug.Log("ScoreBtnClicked: scoring remain " + _scoringRemain);
+        //todo: check game over
     }
 
     public void RerollBtnClicked()

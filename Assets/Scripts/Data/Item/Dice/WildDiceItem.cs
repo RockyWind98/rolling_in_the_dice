@@ -6,7 +6,6 @@ public class WildDiceItem : DiceItem
 {
     public override void Roll()
     {
-        num = 9;
-        diceString = "*";
+
     }
 }

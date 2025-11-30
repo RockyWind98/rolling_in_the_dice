@@ -114,6 +114,7 @@ public class ScoreManager : Singleton<ScoreManager>
             if (entries.Length != 5)
             {
                 Debug.LogError($"break because of a corrupt line{lineCount}: {entries.Length}");
+                break;
             }
 
             rulesList.Add(new ScoreRule(entries));

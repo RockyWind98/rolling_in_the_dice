@@ -73,6 +73,7 @@ public class PlayerDataManager : PersistentSingleton<PlayerDataManager>
             if (entries.Length != 3)
             {
                 Debug.LogError($"break because of a corrupt line{lineCount}: {entries.Length}");
+                break;
             }
             else
             {
@@ -88,7 +89,7 @@ public class PlayerDataManager : PersistentSingleton<PlayerDataManager>
                     if(item != null && item is DiceItem diceItem)
                     {
                         playerDiceItems.Add(diceItem);
-                        Debug.Log($"Added starter item: {itemId}");
+                        //Debug.Log($"Added starter item: {itemId}");
                     }
                     else
                     {
