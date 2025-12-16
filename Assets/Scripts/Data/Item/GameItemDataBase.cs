@@ -42,7 +42,7 @@ public class GameItemDataBase : ScriptableObject
     {
         allItems = new List<GameItem>();
 
-        // 1. 查找所有类型为 ItemData 的资源 GUID
+        // 1. 查找所有类型为 GameItem 的资源 GUID
         string[] guids = AssetDatabase.FindAssets("t:GameItem");
 
         foreach (string guid in guids)

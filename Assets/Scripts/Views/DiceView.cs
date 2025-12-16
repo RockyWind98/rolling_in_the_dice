@@ -5,7 +5,7 @@ using DG.Tweening;
 using System;
 
 [RequireComponent(typeof(Collider2D))]
-public class DiceView : MonoBehaviour, IPointerDownHandler
+public class DiceView : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler
 {
     // Start is called before the first frame update
     [SerializeField] private TMP_Text txt;
@@ -43,15 +43,18 @@ public class DiceView : MonoBehaviour, IPointerDownHandler
     {
         if(dice is CommonDice commonDice)
         {
+            commonDice.diceString = commonDice.num.ToString();
             txt.text = commonDice.diceString;
         }
         else if(dice is OddDice oddDice)
         {
+            oddDice.diceString = oddDice.num.ToString();
             txt.text = oddDice.diceString;
             diceBg.GetComponent<SpriteRenderer>().color = Color.Lerp(Color.white, Color.blue, 0.5f);
         }
         else if(dice is EvenDice evenDice)
         {
+            evenDice.diceString = evenDice.num.ToString();
             txt.text = evenDice.diceString;
             diceBg.GetComponent<SpriteRenderer>().color = Color.Lerp(Color.white, Color.red, 0.5f);
         }
@@ -85,6 +88,37 @@ public class DiceView : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        OnDiceClicked?.Invoke(this);
+        if (TargetArrowRenderer.Instance.IsActive())
+        {
+            if(ConsumableSlot.Instance.activeItem.Use(this.gameObject))
+            {
+                GlobalManager.Instance.currentSessionData.RemovePlayerConsumableItem(ConsumableSlot.Instance.activeItem);
+            }
+            ShowDice();
+            TargetArrowRenderer.Instance.DisableArrow();
+            TargetArrowRenderer.Instance.ClearStopPosition();
+        }
+        else
+        {
+            OnDiceClicked?.Invoke(this);
+        }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if(TargetArrowRenderer.Instance.IsActive())
+        {
+            TargetArrowRenderer.Instance.SetStopPosition(this.transform.position + new Vector3(0, 0.5f, 0));
+            return;
+        }
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (TargetArrowRenderer.Instance.IsActive())
+        {
+            TargetArrowRenderer.Instance.ClearStopPosition();
+            return;
+        }
     }
 }

@@ -15,5 +15,6 @@ MonoBehaviour:
   _id: 1000
   _itemName: CommonDice
   _itemRariry: 0
+  _itemDescription: "\u53EF\u4EE5\u9AB0\u51FA1~6\u7684\u666E\u901A\u9AB0\u5B50"
   diceString: 0
   num: 0

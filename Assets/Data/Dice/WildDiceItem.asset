@@ -15,5 +15,6 @@ MonoBehaviour:
   _id: 1100
   _itemName: WildDice
   _itemRariry: 3
+  _itemDescription: "\u62E5\u6709\u9AD8\u8FBE9\u70B9\u7684\u4EF7\u503C\uFF0C\u4E14\u6C38\u8FDC\u53EF\u4EE5\u5F53\u6210\u4EFB\u610F\u6570\u503C\u6765\u7EC4\u6210\u6700\u9AD8\u724C\u578B"
   diceString: '*'
-  num: 5
+  num: 9

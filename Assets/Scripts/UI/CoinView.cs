@@ -15,7 +15,7 @@ public class CoinView : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        SetCoinValue(PlayerDataManager.Instance.GetPlayerCoins());
+        SetCoinValue(GlobalManager.Instance.currentSessionData.GetPlayerCoins());
     }
 
     public void SetCoinValue(int value)

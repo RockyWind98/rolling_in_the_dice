@@ -15,5 +15,6 @@ MonoBehaviour:
   _id: 1001
   _itemName: OddDice
   _itemRariry: 1
+  _itemDescription: "\u53EA\u4F1A\u9AB0\u51FA\u5947\u6570\u7684\u9AB0\u5B50"
   diceString: 0
   num: 0

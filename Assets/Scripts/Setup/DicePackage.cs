@@ -17,40 +17,43 @@ public class DicePackage : Singleton<DicePackage>
         
     }
 
-    public void DiceStoreInit()
+    public void DiceStoreInit(List<DiceItem> playerDiceItems)
     {
-        if(PlayerDataManager.Instance == null)
+        if(GlobalManager.Instance == null)
         {
-            Debug.LogError("PlayerDataManager Instance is null!");
+            Debug.LogError("GlobalManager Instance is null!");
             return;
         }
         if (diceStore.Count <= 0)
         {
-            foreach (string itemId in PlayerDataManager.Instance.starterItemIds)
+            if(playerDiceItems == null || playerDiceItems.Count <= 0)
             {
-                GameItem item = PlayerDataManager.Instance.gameItemDataBase.GetItemById(itemId);
-                if (item is DiceItem diceItem)
+                Debug.LogError("玩家骰子物品列表为空，无法初始化骰子牌库！");
+                return;
+            }
+
+            foreach (DiceItem item in playerDiceItems)
+            {
+                if(item is CommonDiceItem)
                 {
-                    if(diceItem is CommonDiceItem)
-                    {
-                        diceStore.Add(new CommonDice(diceItem));
-                    }
-                    else if (diceItem is OddDiceItem)
-                    {
-                        diceStore.Add(new OddDice(diceItem));
-                    }
-                    else if (diceItem is EvenDiceItem)
-                    {
-                        diceStore.Add(new EvenDice(diceItem));
-                    }
-                    else if (diceItem is WildDiceItem)
-                    {
-                        diceStore.Add(new WildDice(diceItem));
-                    }
+                    diceStore.Add(new CommonDice(item));
+                }
+                else if (item is OddDiceItem)
+                {
+                    diceStore.Add(new OddDice(item));
+                }
+                else if (item is EvenDiceItem)
+                {
+                    diceStore.Add(new EvenDice(item));
+                }
+                else if (item is WildDiceItem)
+                {
+                    diceStore.Add(new WildDice(item));
                 }
                 else
                 {
-                    Debug.LogWarning($"未找到物品ID对应的骰子：{itemId}");
+                    Debug.LogError("unknown dice type!");
+                    return;
                 }
             }
         }

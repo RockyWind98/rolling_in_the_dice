@@ -7,8 +7,12 @@ public class BtnManger : Singleton<BtnManger>
     public GameObject rollBtn;
     public GameObject scoreBtn;
     public GameObject rerollBtn;
+    public GameObject comsumableItemUseBtn;
+    public GameObject comsumableItemDiscardBtn;
+    public GameObject comsumableItemCtrl;
     public TMP_Text rerollNumText;
     public TMP_Text scoringCountText;
+    public bool isCtrlActive = false;
 
     private int _rerollRemain = 5;
     private int _scoringRemain = 5;
@@ -19,6 +23,7 @@ public class BtnManger : Singleton<BtnManger>
         // 这是初始状态设置。
         rollBtn.SetActive(true);
         scoreBtn.SetActive(false);
+        comsumableItemCtrl.SetActive(false);
         DeskManager.Instance.OnDiceSelect += UpdateRerollBtnState;
     }
 
@@ -55,7 +60,7 @@ public class BtnManger : Singleton<BtnManger>
             Debug.LogWarning("当前状态不允许点击 Roll 按钮");
         }
 
-        _rerollRemain = PlayerDataManager.Instance.GetPlayerRerollCount();
+        _rerollRemain = GlobalManager.Instance.currentSessionData.GetPlayerRerollCount();
         rerollNumText.text = _rerollRemain.ToString();
     }
 
@@ -75,11 +80,19 @@ public class BtnManger : Singleton<BtnManger>
         }
 
         scoreBtn.SetActive(false);
-        rollBtn.SetActive(true);
         rerollBtn.SetActive(false);
         DeskManager.Instance.ClearDeskSettlement();
         _scoringRemain--;
         scoringCountText.text = _scoringRemain.ToString();
+
+        if(_scoringRemain <= 0)
+        {
+            // 如果没有剩余的得分机会，设置状态为 GameOver
+        }
+        else
+        {
+            rollBtn.SetActive(true);
+        }
 
         Debug.Log("ScoreBtnClicked: scoring remain " + _scoringRemain);
         //todo: check game over
@@ -100,6 +113,8 @@ public class BtnManger : Singleton<BtnManger>
             DeskManager.Instance.ClearSelectedDice();
             DeskManager.Instance.RollDice();
         }
+
+        NoticeSystem.Instance.ShowNotice("Reroll! Remaining: " + _rerollRemain);
     }
 
     private void UpdateRerollBtnState(Dictionary<string, int> dict)
@@ -118,5 +133,36 @@ public class BtnManger : Singleton<BtnManger>
                 rerollBtn.SetActive(false);
             }
         }
+    }
+
+    public void HideConsumableCtrl()
+    {
+        comsumableItemCtrl.SetActive(false);
+        isCtrlActive = false;
+    }
+
+    public void ShowConsumableCtrl(Vector3 screenPosition, bool isUp)
+    {
+        // 计算显示位置
+        comsumableItemCtrl.transform.position = isUp ? new Vector3(screenPosition.x, screenPosition.y + 110, comsumableItemCtrl.transform.position.z) :
+            new Vector3(screenPosition.x, screenPosition.y - 110, comsumableItemCtrl.transform.position.z);
+
+        // 激活显示对象
+        comsumableItemCtrl.SetActive(true);
+        isCtrlActive = true;
+    }
+
+    public void ConsumableItemDiscardClicked()
+    {
+        comsumableItemCtrl.SetActive(false);
+        isCtrlActive = false;
+        GlobalManager.Instance.currentSessionData.RemovePlayerConsumableItem(ConsumableSlot.Instance.activeItem);
+    }
+
+    public void ConsumableUseClicked()
+    {
+        TargetArrowRenderer.Instance.EnableArrow(ConsumableSlot.Instance.activeView.transform);
+        comsumableItemCtrl.SetActive(false);
+        isCtrlActive = false;
     }
 }

@@ -52,6 +52,8 @@ public class DeskManager : Singleton<DeskManager>
     [Tooltip("计分骰子动画耗时（秒）")]
     [SerializeField] private float scoringDuration = 0.3f;
 
+    [SerializeField] private DiceView forTest;
+
     private List<DiceView> diceViewList = new List<DiceView>();
     private List<DiceView> diceSelected = new List<DiceView>();
     private Vector2 diceArrangePoint = Vector2.zero;
@@ -103,7 +105,41 @@ public class DeskManager : Singleton<DeskManager>
 
     void Update()
     {
+        if (Input.GetMouseButtonDown(0)) // 检测鼠标左键点击
+        {
+            if (!IsPointerOverUI() && !IsPointerOverSprite())
+            {
+                // 反选所有已选骰子
+                var diceSelectedCopy = diceSelected.ToList();
+                foreach (DiceView dv in diceSelectedCopy)
+                {
+                    SelectDice(dv);
+                }
+                OnDiceSelect?.Invoke(_diceNumSelected);
+                TargetArrowRenderer.Instance.DisableArrow();
+                BtnManger.Instance.HideConsumableCtrl();
+            }
+        }
+    }
 
+    /// <summary>
+    /// 检测鼠标是否点击在UI元素上
+    /// </summary>
+    /// <returns>如果鼠标点击在UI元素上，返回true；否则返回false</returns>
+    private bool IsPointerOverUI()
+    {
+        return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+    }
+
+    /// <summary>
+    /// 检测鼠标是否点击在精灵上
+    /// </summary>
+    /// <returns>如果鼠标点击在精灵上，返回true；否则返回false</returns>
+    private bool IsPointerOverSprite()
+    {
+        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+        return hit.collider != null; // 如果检测到碰撞体，说明点击在精灵上
     }
 
     public int GetSelectedDiceCount()

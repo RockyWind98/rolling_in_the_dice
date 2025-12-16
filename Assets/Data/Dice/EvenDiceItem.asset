@@ -15,5 +15,6 @@ MonoBehaviour:
   _id: 1002
   _itemName: EvenDice
   _itemRariry: 1
+  _itemDescription: "\u53EA\u4F1A\u9AB0\u51FA\u5076\u6570\u7684\u9AB0\u5B50"
   diceString: 0
   num: 0
