@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class DicePackage : Singleton<DicePackage>
 {
+    public TMP_Text storeNum;
+    public TMP_Text discardNum;
     public List<Dice> diceStore = new List<Dice>();
     public List<Dice> diceDiscard = new List<Dice>();
     // Start is called before the first frame update
@@ -84,6 +87,15 @@ public class DicePackage : Singleton<DicePackage>
         Dice result = diceStore[0];
         diceStore.RemoveAt(0);
         result.RollDice();
+        if (storeNum != null)
+        {
+            storeNum.text = diceStore.Count.ToString();
+        }
+
+        if (discardNum != null)
+        {
+            discardNum.text = diceDiscard.Count.ToString();
+        }
 
         return result;
     }
@@ -91,6 +103,10 @@ public class DicePackage : Singleton<DicePackage>
     public void DiscardDice(Dice dice)
     {
         diceDiscard.Add(dice);
+        if (discardNum != null)
+        {
+            discardNum.text = diceDiscard.Count.ToString();
+        }
     }
 
     public void ShuffleDice()

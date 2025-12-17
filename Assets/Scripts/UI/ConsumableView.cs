@@ -69,7 +69,7 @@ public class ConsumableView : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         // 调用提示系统显示
         if (ItemShowSystem.Instance != null)
         {
-            ItemShowSystem.Instance.ShowItemInfo(nameToShow, desToShow, isUp, screenPos);
+            ItemShowSystem.Instance.ShowItemInfo(nameToShow, desToShow, isUp, screenPos, 110);
         }
         else
         {

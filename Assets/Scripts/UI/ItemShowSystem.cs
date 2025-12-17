@@ -21,15 +21,15 @@ public class ItemShowSystem : Singleton<ItemShowSystem>
         
     }
 
-    public void ShowItemInfo(string iName, string iDes, bool isUp, Vector3 screenPosition)
+    public void ShowItemInfo(string iName, string iDes, bool isUp, Vector3 screenPosition, float offset)
     {
         // 设置显示的文本内容
         itemName.text = iName;
         itemDes.text = iDes;
 
         // 计算显示位置
-        showObj.transform.position = isUp? new Vector3(screenPosition.x, screenPosition.y + 110, showObj.transform.position.z) :
-            new Vector3(screenPosition.x, screenPosition.y - 110, showObj.transform.position.z);
+        showObj.transform.position = isUp? new Vector3(screenPosition.x, screenPosition.y + offset, showObj.transform.position.z) :
+            new Vector3(screenPosition.x, screenPosition.y - offset, showObj.transform.position.z);
 
         // 激活显示对象
         showObj.SetActive(true);
