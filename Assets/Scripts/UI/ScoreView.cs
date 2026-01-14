@@ -8,6 +8,7 @@ public class ScoreView : MonoBehaviour
 {
     [SerializeField] private TMP_Text scoreCurrentText_;
     [SerializeField] private TMP_Text scorePassText_;
+    public GameObject GameOvePanel;
 
     // 保存当前显示值，避免每次从文本解析
     private int _currentDisplayed = 0;
@@ -22,6 +23,12 @@ public class ScoreView : MonoBehaviour
 
     void Start()
     {
+        // 初始化时隐藏 GameOver 面板
+        if (GameOvePanel != null)
+        {
+            GameOvePanel.SetActive(false);
+        }
+
         if (scoreCurrentText_ == null)
         {
             Debug.LogError("ScoreView: scoreCurrentText_ is null.");
@@ -111,6 +118,16 @@ public class ScoreView : MonoBehaviour
 
             if (_shakeTween != null && _shakeTween.IsActive())
                 _shakeTween.Kill();
+
+            if(_currentDisplayed < _scorePass && BtnManger.Instance.GetScoreCnt() == 0)
+            {
+                Debug.Log("ScoreView: Game Over - Score below pass threshold.");
+                if (GameOvePanel != null)
+                {
+                    Debug.Log("666666666666666666666666666");
+                    GameOvePanel.SetActive(true);
+                }
+            }
         });
     }
 }

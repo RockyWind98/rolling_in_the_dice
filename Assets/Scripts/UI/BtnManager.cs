@@ -98,6 +98,12 @@ public class BtnManger : Singleton<BtnManger>
         //todo: check game over
     }
 
+    public int GetScoreCnt()
+    {
+        Debug.Log("GetScoreCnt: " + _scoringRemain);
+        return _scoringRemain;
+    }
+
     public void RerollBtnClicked()
     {
         if (DeskManager.Instance == null)

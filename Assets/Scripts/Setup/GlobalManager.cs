@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GlobalManager : PersistentSingleton<GlobalManager>
 {
@@ -18,6 +19,17 @@ public class GlobalManager : PersistentSingleton<GlobalManager>
 
     void Start()
     {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public void InitialGameSession()
+    {
         if(currentSessionData == null)
         {
             LoadPlayerInitData();
@@ -27,7 +39,7 @@ public class GlobalManager : PersistentSingleton<GlobalManager>
         DicePackage.Instance.ShuffleDice();
         BtnManger.Instance.SetRerollNum(currentSessionData.playerRerollCount);
 
-        if(ConsumableSlot.Instance != null)
+        if (ConsumableSlot.Instance != null)
         {
             if (ConsumableSlot.Instance.slots.Count != 0)
             {
@@ -48,12 +60,6 @@ public class GlobalManager : PersistentSingleton<GlobalManager>
         {
             Debug.LogError("ConsumableSlot Instance is null!");
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public void QuitToMain()
